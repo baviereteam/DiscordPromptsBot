@@ -1,0 +1,16 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "BotToken": "your bot token from the Bot page in the Discord Developer Portal",
+  "ThreadId": "the ID for the thread on your server - find it with Right click - Copy thread identifier",
+  "RoleToPingId": "the ID for a role to ping on your server - find it with Right click - Copy role identifier (in the Roles admin page)",
+  "Prompts": [
+    "Your first prompt",
+    "Your second prompt, use @role as a placeholder for the role mention.",
+    "@role, what's up this week?"
+  ]
+}
