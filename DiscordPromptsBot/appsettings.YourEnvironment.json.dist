@@ -1,0 +1,11 @@
+{
+  "BotToken": "The token for your bot (from the Bot tab in the Discord Developer Portal)",
+  "ThreadId": The ID for the thread you want to post in. No quotes around it,
+  "RoleToPingId": "The ID for the role that the bot should ping if @role is in the prompt. Quotes around it.",
+  "Prompts": [
+    "This is a regular prompt.",
+    "Hello! When this prompt is sent, this -> @role <- will be replaced by a ping to the role configured in RoleToPingId.",
+    "Customize these prompts at will!",
+    "No comma after the last prompt."
+  ]
+}
