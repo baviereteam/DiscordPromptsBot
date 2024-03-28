@@ -21,17 +21,55 @@ namespace DiscordPromptsBot
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Client.Log += Log;
-
-            await Client.LoginAsync(TokenType.Bot, Configuration.GetValue<string>("BotToken"));
-            await Client.StartAsync();
-
-            Client.Ready += async () =>
+            // Verify that we have the right configuration
+            try
             {
-                await SendMessage();
-                await Client.LogoutAsync();
+                ValidateConfiguration();
+
+                Client.Log += Log;
+
+                await Client.LoginAsync(TokenType.Bot, Configuration.GetValue<string>("BotToken"));
+                await Client.StartAsync();
+
+                Client.Ready += async () =>
+                {
+                    await SendMessage();
+                    await Client.LogoutAsync();
+                    Application.StopApplication();
+                };
+            }
+
+            catch (ConfigurationException e) 
+            {
+                Console.WriteLine($"Configuration is invalid: {e.Message}");
                 Application.StopApplication();
-            };
+            }
+        }
+
+        private void ValidateConfiguration()
+        {
+            var token = Configuration.GetValue<string>("BotToken");
+            if (token == null)
+            {
+                throw new ConfigurationException("Missing BotToken parameter.");
+            }
+
+            var thread = Configuration.GetValue<ulong>("ThreadId");
+            if (thread == 0)
+            {
+                throw new ConfigurationException("Missing ThreadId parameter.");
+            }
+
+            var role = Configuration.GetValue<string>("RoleToPingId");
+            if (role == null)
+            {
+                throw new ConfigurationException("Missing RoleToPingId parameter.");
+            }
+
+            if (Prompts.Length == 0)
+            {
+                throw new ConfigurationException("No prompts found.");
+            }
         }
 
         private async Task SendMessage()
@@ -46,6 +84,9 @@ namespace DiscordPromptsBot
 
             if (!channelTypesAllowed.Contains(channel.GetChannelType()))
             {
+                // The most probable cause of this crash, if the thread actually exists, is that the bot is not present in it.
+                // The easiest fix is to ping the bot from inside the thread.
+
                 throw new Exception("The channel matching the ThreadId is not a thread!");
             }
 
