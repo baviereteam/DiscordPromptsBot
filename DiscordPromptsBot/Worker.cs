@@ -8,13 +8,14 @@ namespace DiscordPromptsBot
         private readonly IHostApplicationLifetime Application;
         private readonly IConfiguration Configuration;
         private readonly DiscordSocketClient Client;
-        private readonly string LastPromptSentFile = Path.Combine(Environment.CurrentDirectory, "last_sent_prompt_number.txt");
+        private readonly string LastPromptSentFile = Path.Combine(Environment.CurrentDirectory, "last_sent_prompt_number_{0}.txt");
         private readonly string[] Prompts;
 
-        public Worker(IConfiguration configuration, IHostApplicationLifetime application)
+        public Worker(IConfiguration configuration, IHostApplicationLifetime application, IHostEnvironment environment)
         {
             Application = application;
             Configuration = configuration;
+            LastPromptSentFile = string.Format(LastPromptSentFile, environment.EnvironmentName);
             Prompts = Configuration.GetSection("Prompts").GetChildren().Select(item => item.Value).ToArray();
             Client = new DiscordSocketClient();
         }
@@ -39,9 +40,15 @@ namespace DiscordPromptsBot
                 };
             }
 
+            // Always stop on any kind of exception
             catch (ConfigurationException e) 
             {
                 Console.WriteLine($"Configuration is invalid: {e.Message}");
+                Application.StopApplication();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
                 Application.StopApplication();
             }
         }
@@ -96,7 +103,7 @@ namespace DiscordPromptsBot
             var numberOfTheLastPromptSent = FindNumberOfLastPromptSent();
 
             int promptToSendToday;
-            if (numberOfTheLastPromptSent == null)
+            if (numberOfTheLastPromptSent == null || numberOfTheLastPromptSent >= Prompts.Length - 1)
             {
                 // if we can't find which was the last prompt we sent, we'll set it to 0, that will send the first one
                 promptToSendToday = 0;

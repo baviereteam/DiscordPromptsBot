@@ -396,5 +396,8 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+/DiscordPromptsBot/Properties/launchSettings.json
 /DiscordPromptsBot/appsettings.json
-/DiscordPromptsBot/last_sent_prompt_number.txt
+/DiscordPromptsBot/appsettings.*.json
+/DiscordPromptsBot/last_sent_prompt_number_*.txt
